@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import axios from 'axios'
 import { useDispatch } from "react-redux";
 import { login } from "../redux/apiCalls";
-
+import Loader from "../components/loader";
 import {
   GlobalStyles,
   Head,
@@ -29,6 +29,7 @@ import {
 
 const Login = () => {
   const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [password, setPassword] = useState("");
   const [panelActive, setPanelActive] = useState(false);
   const [name, setName] = useState("");
@@ -48,6 +49,7 @@ const Login = () => {
 
   const handleLogin = (e) => {
     e.preventDefault();
+    setIsLoading(true);
     const userCheck = {
       email: email,
       password: password,
@@ -61,11 +63,14 @@ const Login = () => {
         navigate("/dashboard");
       });
     } catch {
+      setIsLoading(false);
       alert("Something went wrong");
     }
+
   };
 
   const handleRegister = async (e) => {
+    setIsLoading(true);
     e.preventDefault();
     const registered = {
       firstname: name,
@@ -78,12 +83,15 @@ const Login = () => {
       console.log(response.status);
       console.log(response.data);
       setPanelActive(false);
+      setIsLoading(false);
     });
   };
 
   return (
     <>
+
       <GlobalStyles />
+      {isLoading && <Loader />}
       <Container
         id="container"
         className={`${panelActive ? "right-panel-active" : ""}`}
@@ -158,7 +166,6 @@ const Login = () => {
           </Overlay>
         </OverlayContainer>
       </Container>
-
     </>
   );
 };
