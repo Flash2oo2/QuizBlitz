@@ -19,6 +19,7 @@
     "firebase": "^9.9.1",
     "react": "^18.2.0",
     "react-countdown": "^2.3.2",
+    "react-countdown-circle-timer": "^3.2.1",
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.2",
     "react-file-base64": "^1.0.3",

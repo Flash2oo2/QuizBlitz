@@ -17,6 +17,7 @@ const QuizController = (CUId) => {
     const [isLoading, setIsLoading] = useState(true);
     const [exam_id, setExam_id] = useState("");
     const [timerData, setTimerData] = useState(0);
+    const [url, setUrl] = useState("/dashboard");
 
     const navigate = useNavigate()
 
@@ -42,9 +43,9 @@ const QuizController = (CUId) => {
                 setTimerData(data2.data[0].time)
                 console.log(data2.data[0].time)
                 alert("You are in preview mode that means your question data will not be saved")
-                setTimeout(() => {
-                    navigate("/dashboard" + exam_id)
-                }, ((data2.data[0].time) * 60) + "000");
+                // setTimeout(() => {
+                //     navigate("/dashboard" + exam_id)
+                // }, ((data2.data[0].time) * 60) + "000");
             } else {
                 const dummyData = {
                     userId: CUId.CUId,
@@ -59,9 +60,10 @@ const QuizController = (CUId) => {
                     console.log(response.status);
                     console.log(response.data);
                     setExam_id(response.data._id);
-                    setTimeout(() => {
-                        navigate("/result/" + response.data._id)
-                    }, ((data2.data[0].time) * 60) + "000");
+                    setUrl(`/result/${response.data._id}`);
+                    // setTimeout(() => {
+                    //     navigate("/result/" + response.data._id)
+                    // }, ((data2.data[0].time) * 60) + "000");
                 });
                 setTimerData(data2.data[0].time)
             }
@@ -101,7 +103,7 @@ const QuizController = (CUId) => {
     return (
         <div>
             <LoginNavbar />
-            <CountDownTimer hoursMinSecs={hoursMinSecs} />
+            <CountDownTimer hoursMinSecs={hoursMinSecs} url={url} />
             <Quiz
                 questions={questions}
                 score={score}

@@ -14,6 +14,7 @@ import Help from "./pages/Help";
 import ExamReview from "./pages/ExamReview";
 import NotFound from "./pages/NotFound";
 import Loader from "./components/loader";
+import CountDownTimer from "./components/CountDownTimer";
 
 
 function App() {
@@ -45,7 +46,7 @@ function App() {
         <Route path="/anlyze/:id" element={<RequireAuth><Anlyze CUId={currentUserUid} /></RequireAuth>} />
         <Route path="/quiz/:id" element={<RequireAuth><QuizController CUId={currentUserUid} /></RequireAuth>} />
         <Route path="/result/:id" element={<RequireAuth><Result /></RequireAuth>} />
-        <Route path="/test" element={<Loader />} />
+        <Route path="/test" element={<CountDownTimer />} />
         <Route path='*' element={<NotFound />} />
       </Routes>
     </div>
