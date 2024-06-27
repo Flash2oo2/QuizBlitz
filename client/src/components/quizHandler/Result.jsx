@@ -8,6 +8,8 @@ import { publicRequest } from "../../requestMethods";
 import { useParams } from 'react-router-dom'
 import Loader from "../loader";
 
+
+
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -39,6 +41,7 @@ const Result = () => {
   const getPassGrade = async (data) => {
     await publicRequest.get(`/exam/exam/${data[0].examId}`).then((response) => {
       setPassGrade(response.data[0].passGrade);
+
       setIsLoading(false);
     });
 
@@ -56,9 +59,10 @@ const Result = () => {
   return (
     <>
       <LoginNavbar />
+
       <Container>
         <span>Final Score : {score}</span> <br />
-        {passGrade <= score ? (<><span>congratulations you passed the exam</span><br /><img src="https://i.ibb.co/7vPw6r4/Png-Item-30479.png" style={{ height: "200px", width: "300px", marginLeft: "auto", marginRight: "auto" }} /></>) : (<><span>sorry you failed the exam</span><br /><img src="https://www.onlygfx.com/wp-content/uploads/2020/05/fail-stamp-7.png" style={{ height: "200px", width: "300px", marginLeft: "auto", marginRight: "auto" }} /></>)}
+        {passGrade <= score ? (<><span>congratulations you passed the exam</span><br /><img src="https://i.ibb.co/hZjDzpG/Passed-stamp-on-transparent-background-PNG.png" style={{ height: "200px", width: "300px", marginLeft: "auto", marginRight: "auto" }} /></>) : (<><span>sorry you failed the exam</span><br /><img src="https://www.onlygfx.com/wp-content/uploads/2020/05/fail-stamp-7.png" style={{ height: "200px", width: "300px", marginLeft: "auto", marginRight: "auto" }} /></>)}
         <Link to="/dashboard">
           <button
             variant="contained"
@@ -70,6 +74,7 @@ const Result = () => {
           </button>
         </Link>
       </Container>
+
       <Footer />
     </>
   );
