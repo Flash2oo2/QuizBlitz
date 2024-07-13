@@ -2,154 +2,117 @@ import { useEffect, useState } from 'react'
 import Footer from '../components/Footer'
 import LoginNavbar from '../components/LoginNavbar'
 import styled from 'styled-components'
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
-import { ArrowForward } from '@mui/icons-material';
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableCell from '@mui/material/TableCell'
+import TableContainer from '@mui/material/TableContainer'
+import TableHead from '@mui/material/TableHead'
+import TableRow from '@mui/material/TableRow'
+import Paper from '@mui/material/Paper'
 import { useParams } from 'react-router-dom'
-import axios from 'axios'
-import { publicRequest } from '../requestMethods';
-import Loader from '../components/loader';
+import { publicRequest } from '../requestMethods'
+import Loader from '../components/loader'
 
-const Container = styled.table`
-      width: 100%;
-      height:40vh;
-      border-collapse: collapse;
-      text-align: center;
-      border-radius:8px;
-      overflow: hidden;
-      background-color:#EEEEEE;
-  `;
+const Container = styled.div`
+  width: 100%;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  padding: 2rem 0;
+`
+
 const Wrapper = styled.div`
-  width:86%;
-  margin:7%;
-  max-width:1300px;
-  `
-const Check = styled.input`
-  transform : scale(1.5);
-    margin:20px;
-    color:;
-  `
-const Label = styled.label`
-  color:;
-  maxWidth:1400px;
-  `
-const Button = styled.button`
-font-size:16px;
-margin:10px;
-padding:10px;
-border:none;
-border-radius:5px;
-background-color:#0275d8;
-color:#EEEEEE;
-cursor: pointer;
-&:hover {
-    background-color: #228CE9;
-  }
-  `
-const NextButton = styled.button`
-font-size:16px;
-margin:10px;
-padding:10px;
-border:none;
-border-radius:5px;
-background-color:#5cb85c;
-color:#EEEEEE;
-cursor: pointer;
-&:hover {
-    background-color: #75DB75;
-  }
-  `
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+`
+
+const QuestionCard = styled(Paper)`
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+`
+
+const QuestionTitle = styled.h3`
+  color: #4285F4;
+  margin-bottom: 1rem;
+`
+
+const AnswerContainer = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+`
+
+const AnswerLabel = styled.span`
+  font-weight: 600;
+  margin-right: 0.5rem;
+`
+
+const UserAnswer = styled.span`
+  color: ${props => props.isCorrect ? '#007E33' : '#FF8800'};
+`
+
+const CorrectAnswer = styled.span`
+  color: #007E33;
+`
 
 const ExamReview = () => {
+  const [examQuestions, setExamQuestions] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const { id } = useParams()
 
-    const [examQuestions, setExamQuestions] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
+  useEffect(() => {
+    getExamInfos()
+  }, [])
 
-    const params = useParams();
-    const id = params;
-
-    useEffect(() => {
-        getExamInfos();
-        console.log("check")
-    }, [])
-
-    const getExamInfos = async () => {
-        const { data } = await publicRequest.get(`/userexams/exam/${id.id}`);
-        console.log(data)
-        console.log(data[0].examReview[0].qAnswers)
-        setExamQuestions(data);
-        setIsLoading(false);
+  const getExamInfos = async () => {
+    try {
+      const { data } = await publicRequest.get(`/userexams/exam/${id}`)
+      setExamQuestions(data)
+      setIsLoading(false)
+    } catch (error) {
+      console.error("Error fetching exam info:", error)
+      setIsLoading(false)
     }
+  }
 
-
-    if (isLoading) {
-        return (
-            <>
-
-                <LoginNavbar />
-                <Loader />
-            </>
-        )
-    }
+  if (isLoading) {
     return (
-        <>
-            <LoginNavbar />
-            <Container>
-                <Wrapper>
-                    <TableContainer component={Paper}>
-                        <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                            <TableHead>
-                                <TableRow style={{ backgroundColor: "whitesmoke" }}>
-                                    <TableCell align="right"></TableCell>
-                                    <TableCell align="right"></TableCell>
-                                    <TableCell align="right"></TableCell>
-                                    <TableCell align="right"></TableCell>
-                                    <TableCell align="right"></TableCell>
-                                </TableRow>
-                            </TableHead>
-                            {examQuestions?.map((exam, index) => (
-                                <TableBody>
-                                    <TableRow
-                                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                        key={exam._id} >
-                                        <TableCell component="th" scope="exam" style={{ color: "#222831", fontSize: "16px", fontWeight: "600", padding: "25px" }}>
-                                            {exam.examReview.map((examR, indexi) => (<>
-                                                <Label><span style={{ color: "#4285F4" }}>{"Question Title )  "}</span>{examR.qTitle}</Label>
-                                                <br /><Check type="radio" name={`${indexi + 1}`} />
-                                                <Label><span style={{ color: "#FF8800" }}>{"User Answer ) "}</span> {examR.qAnswers}</Label>
-                                                <br /><Check type="radio" name={`${indexi + 1}`} />
-                                                <Label><span style={{ color: "#007E33" }}>{"Correct Answer ) "}</span>{examR.qCorrect}</Label>
-                                                <br />
-                                                <br />
-                                            </>))}
-                                        </TableCell>
-                                        <br />
-                                        <TableCell align="right"></TableCell>
-                                        <TableCell align="right"></TableCell>
-                                        <TableCell align="right"></TableCell>
-                                        <TableCell align="right"></TableCell>
-                                    </TableRow>
-                                </TableBody>
-                            ))}
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell></TableCell>
-                                    <TableCell></TableCell>
-                                    <TableCell></TableCell>
-                                </TableRow>
-                            </TableHead>
-                        </Table>
-                    </TableContainer>
-                </Wrapper>
-            </Container>
-            <Footer />
-        </>
+      <>
+        <LoginNavbar />
+        <Loader />
+      </>
     )
+  }
+
+  return (
+    <>
+      <LoginNavbar />
+      <Container>
+        <Wrapper>
+          {examQuestions.map((exam) => (
+            exam.examReview.map((question, index) => (
+              <QuestionCard key={index} elevation={3}>
+                <QuestionTitle>{`Question ${index + 1}: ${question.qTitle}`}</QuestionTitle>
+                <AnswerContainer>
+                  <AnswerLabel>Your Answer:</AnswerLabel>
+                  <UserAnswer isCorrect={question.qAnswers === question.qCorrect}>
+                    {question.qAnswers}
+                  </UserAnswer>
+                </AnswerContainer>
+                <AnswerContainer>
+                  <AnswerLabel>Correct Answer:</AnswerLabel>
+                  <CorrectAnswer>{question.qCorrect}</CorrectAnswer>
+                </AnswerContainer>
+              </QuestionCard>
+            ))
+          ))}
+        </Wrapper>
+      </Container>
+      <Footer />
+    </>
+  )
 }
 
 export default ExamReview

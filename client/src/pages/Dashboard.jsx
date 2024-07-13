@@ -1,89 +1,154 @@
 import styled from "styled-components"
 import LoginNavbar from "../components/LoginNavbar";
 import Footer from "../components/Footer";
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
-import { BarChart, Delete, Edit, Visibility } from "@mui/icons-material";
+import { BarChart, Delete, Edit, Visibility, Add } from "@mui/icons-material";
 import { useEffect, useState } from "react";
 import Popup from 'reactjs-popup';
-import axios from 'axios'
 import { Link } from "react-router-dom";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { publicRequest } from "../requestMethods";
 import Loader from "../components/loader";
 
-const Container = styled.table`
-  width: 100%;
-  height: 40vh;
-  border-collapse: collapse;
-  text-align: center;
-  border-radius: 8px;
-  overflow: hidden;
-  background-color: #EEEEEE;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Adding a subtle shadow for depth */
+const Container = styled.div`
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  padding: 2rem 0;
 `;
 
-const Wrapper = styled.caption`
+const Wrapper = styled.div`
   width: 90%;
-  margin: 5%;
+  max-width: 1200px;
+  margin: 0 auto;
 `;
 
-const Button = styled.button`
-  background-color: #EEEEEE;
-  color: #393E46;
-  border: none;
-  border-radius: 15px;
-  font-size: 14px;
-  cursor: pointer;
-  padding: 8px 16px;
-  transition: background-color 0.3s ease; /* Smooth transition for hover effect */
-  &:hover {
-    background-color: #DFE2E2; /* Lighten the background color on hover */
-  }
+const Header = styled.h1`
+  color: #222831;
+  margin-bottom: 2rem;
+  text-align: center;
 `;
 
 const CreateButton = styled.button`
-  font-size: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
   font-weight: 600;
-  padding: 12px 24px;
+  padding: 0.75rem 1.5rem;
   border: none;
-  border-radius: 10px;
+  border-radius: 50px;
   background-color: #00ADB5;
   color: #EEEEEE;
   cursor: pointer;
-  transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+  transition: background-color 0.3s ease;
+  margin-bottom: 2rem;
+
   &:hover {
-    background-color: #55B4BA; /* Darken the background color on hover */
+    background-color: #008C9E;
   }
 `;
-const Dashboard = (CUId) => {
 
-  const notify = () => toast.success("Link successfully  copied to the clipboard");
+const ExamGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+`;
 
+const ExamCard = styled.div`
+  background-color: white;
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  }
+`;
+
+const ExamName = styled.h3`
+  color: #222831;
+  margin-bottom: 1rem;
+  cursor: pointer;
+`;
+
+const ButtonGroup = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+`;
+
+const ActionButton = styled.button`
+  display: flex;
+  align-items: center;
+  background-color: transparent;
+  color: #393E46;
+  border: none;
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #f0f0f0;
+  }
+
+  svg {
+    margin-right: 0.3rem;
+  }
+`;
+
+const PopupContent = styled.div`
+  background-color: rgb(255,255,255);
+  padding: 2rem;
+  border-radius: 10px;
+  width: 300px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+`;
+
+const PopupInput = styled.input`
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  margin-bottom: 1rem;
+  background-color: rgba(245, 245, 245, 0.9);
+`;
+
+const PopupButton = styled.button`
+  background-color: #00ADB5;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #008C9E;
+  }
+`;
+
+const Dashboard = ({ CUId }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [examName, setExamName] = useState("");
   const [examNameStorage, setExamNameStorage] = useState([]);
   const [dummy, setDummy] = useState(0);
 
+  const notify = () => toast.success("Link successfully copied to the clipboard");
 
   const getExamNames = async () => {
-    const { data } = await publicRequest.get(`/exam/${CUId.CUId}`);
+    const { data } = await publicRequest.get(`/exam/${CUId}`);
     setExamNameStorage(data);
     setIsLoading(false);
   }
 
   const deleteExam = (id) => {
-    publicRequest.delete(`/exam/${id}`).then((response) => {
-      console.log(response.status);
-      console.log(response.data);
+    publicRequest.delete(`/exam/${id}`).then(() => {
+      setDummy(dummy + 1);
     });
-    setDummy(dummy + 1)
   }
 
   useEffect(() => {
@@ -92,95 +157,86 @@ const Dashboard = (CUId) => {
 
   const handleName = (e) => {
     e.preventDefault();
-    if (examName == "") {
-      alert("If you want to create an exam you have to give it a name")
+    if (examName === "") {
+      toast.error("Please enter an exam name");
     } else {
       const newExam = {
-        creatorUserId: CUId.CUId,
+        creatorUserId: CUId,
         examname: examName,
       };
-      console.log(newExam)
-      publicRequest.post("/exam/", newExam).then((response) => {
-        console.log(response.status);
-        console.log(response.data);
+      publicRequest.post("/exam/", newExam).then(() => {
+        setDummy(dummy + 1);
+        toast.success("Exam created successfully");
       });
-      setDummy(dummy + 1)
     }
   }
 
   if (isLoading) {
     return (
       <>
-
         <LoginNavbar />
         <Loader />
       </>
     )
   }
+
   return (
     <>
       <LoginNavbar />
       <Container>
         <Wrapper>
+          <Header>Your Exams</Header>
           <Popup
-            trigger={<CreateButton >Create Exam </CreateButton>}
+            trigger={
+              <CreateButton>
+                <Add style={{ marginRight: '0.5rem' }} />
+                Create Exam
+              </CreateButton>
+            }
             modal
             nested
           >
             {close => (
-              <div style={{ fontSize: "12px", backgroundColor: "#393E46", width: "400px" }}>
-                <button style={{ cursor: "pointer", position: "absolute", display: "block", padding: "2px 5px", lineHeight: "20px", right: "-10px", top: "-10px", fontSize: "24px", background: "#ffffff", borderRadius: "18px", border: "1px solid #cfcece" }} onClick={close}>
-                  &times;
-                </button>
+              <PopupContent>
+                <h2>New Exam</h2>
                 <form onSubmit={handleName}>
-                  <div style={{ width: "100", borderBottom: "1px solid gray", fontSize: "18px", padding: "5px", color: "white" }}>New Exam</div>
-                  <div style={{ width: "100%", padding: "10px 5px" }}>
-                    <input type="text" style={{ width: "90%", padding: "5px", borderRadius: "6px", border: "none" }} placeholder='Enter title for your exam' onChange={e => setExamName(e.target.value)} required /><br />
-                  </div>
-                  <div style={{ width: "100%", padding: "10px 5px", margin: "auto", textAlign: "center" }}>
-                    <Popup
-                      trigger={<Button className="formQButton" style={{ width: "30%", marginRight: "10px", backgroundColor: "#0275d8", color: "white" }}> Confirm </Button>}
-                      position="top center"
-                      nested
-                    >
-                    </Popup>
-                    <Button
-                      className="formQButton" onClick={() => { close(); }} style={{ width: "30%", color: "#100F0F" }}> Close
-                    </Button>
-                  </div>
+                  <PopupInput
+                    type="text"
+                    placeholder='Enter title for your exam'
+                    onChange={e => setExamName(e.target.value)}
+                    required
+                  />
+                  <PopupButton type="submit">Create</PopupButton>
                 </form>
-              </div>
+              </PopupContent>
             )}
           </Popup>
-          <TableContainer component={Paper}>
-            <Table sx={{ minWidth: 650 }} aria-label="simple table">
-              <TableHead>
-                <TableRow style={{ backgroundColor: "whitesmoke" }}>
-                  <TableCell>Quizzes</TableCell>
-                  <TableCell align="right"></TableCell>
-                  <TableCell align="right"></TableCell>
-                  <TableCell align="right"></TableCell>
-                  <TableCell align="right"></TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {examNameStorage.map((name) => (
-                  <TableRow
-                    key={name.examname}
-                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                  >
-                    <TableCell component="th" scope="row" onClick={() => { navigator.clipboard.writeText("https://quizblitz-v1.netlify.app/quiz/" + name._id) }}>
-                      <span style={{ cursor: "pointer" }} onClick={() => { notify(); }}> {name.examname}  <span style={{ color: "#CC0000" }}>{"=>"}  Click for quiz link</span> </span>
-                    </TableCell>
-                    <TableCell align="right"><Link to={`/anlyze/${name._id}`}><Button><BarChart style={{ verticalAlign: "middle", padding: "5px" }} />Analyze</Button></Link></TableCell>
-                    <TableCell align="right"><Link to={`/quiz/${name._id}`}><Button><Visibility style={{ verticalAlign: "middle", padding: "5px" }} />Preview</Button></Link></TableCell>
-                    <TableCell align="right"><Link to={`/create/${name._id}`}><Button ><Edit style={{ verticalAlign: "middle", padding: "5px" }} />Edit</Button></Link></TableCell>
-                    <TableCell align="right"><Button onClick={() => { deleteExam(name._id); }}><Delete style={{ verticalAlign: "middle", padding: "5px" }} />Delete</Button></TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+          <ExamGrid>
+            {examNameStorage.map((exam) => (
+              <ExamCard key={exam._id}>
+                <ExamName onClick={() => {
+                  navigator.clipboard.writeText(`https://quizblitz-v1.netlify.app/quiz/${exam._id}`);
+                  notify();
+                }}>
+                  {exam.examname}
+                </ExamName>
+                <ButtonGroup>
+                  <Link to={`/anlyze/${exam._id}`}>
+                    <ActionButton><BarChart />Analyze</ActionButton>
+                  </Link>
+                  <Link to={`/quiz/${exam._id}`}>
+                    <ActionButton><Visibility />Preview</ActionButton>
+                  </Link>
+                  <Link to={`/create/${exam._id}`}>
+                    <ActionButton><Edit />Edit</ActionButton>
+                  </Link>
+                  <ActionButton onClick={() => deleteExam(exam._id)}>
+                    <Delete />Delete
+                  </ActionButton>
+                </ButtonGroup>
+              </ExamCard>
+            ))}
+          </ExamGrid>
         </Wrapper>
       </Container>
       <Footer />
@@ -189,4 +245,4 @@ const Dashboard = (CUId) => {
   );
 }
 
-export default Dashboard
+export default Dashboard;

@@ -1,20 +1,20 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import ErrorMessage from "./ErrorMessage";
-import styled from "styled-components"
-import { useParams } from 'react-router-dom'
-import axios from 'axios'
+import { useNavigate, useParams } from "react-router-dom";
+import styled from "styled-components";
+import axios from "axios";
 import { publicRequest } from "../../requestMethods";
 import LoginNavbar from "../LoginNavbar";
 import Footer from "../Footer";
 import Loader from "../loader";
+import ErrorMessage from "./ErrorMessage";
 
 const Container = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-`
+`;
+
 const SingleQuestion = styled.div`
   width: 95%;
   min-height: 350px;
@@ -22,10 +22,14 @@ const SingleQuestion = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: space-around;
-  border: 5px solid grey;
+  border: 2px solid #bdc3c7;
+  border-radius: 15px;
   padding: 20px;
   margin-top: 10px;
-`
+  background-color: #ffffff;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+`;
+
 const Options = styled.div`
   width: 100%;
   display: flex;
@@ -34,29 +38,51 @@ const Options = styled.div`
   align-items: center;
   justify-content: space-around;
   margin: 10px;
-`
+`;
+
 const SingleOption = styled.button`
   width: 46%;
   height: 50px;
   padding: 15px 20px;
   margin: 10px;
-  box-shadow: 0 0 2px black;
-`
+  border: 2px solid #3498db;
+  border-radius: 12px;
+  background-color: #ecf0f1;
+  color: #2c3e50;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    background-color: #3498db;
+    color: white;
+    border-color: #2980b9;
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 10px rgba(52, 152, 219, 0.5);
+  }
+
+  &.select {
+    background-color: #2ecc71;
+    color: white;
+    border-color: #27ae60;
+  }
+
+  &.wrong {
+    background-color: #e74c3c;
+    color: white;
+    border-color: #c0392b;
+  }
+`;
+
 const Control = styled.div`
   display: flex;
   width: 100%;
   justify-content: space-around;
-`
-const Select = styled.div`
-  background-color: rgb(7, 207, 0);
-  color: white;
-  box-shadow: 0 0 1px black;
-`
-const Wrong = styled.div`
-  background-color: rgb(233, 0, 0);
-  color: white;
-  box-shadow: 0 0 1px black;
-`
+`;
 
 const Question = ({
   currQues,
@@ -75,21 +101,19 @@ const Question = ({
   const [pass, setPass] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
-
-  const navigate = useNavigate()
-
+  const navigate = useNavigate();
   const params = useParams();
   const id = params;
 
   useEffect(() => {
     handleCreatorUser();
-  }, [])
+  }, []);
 
   const handleCreatorUser = async () => {
-    const { data } = await publicRequest.get('/exam/exam/' + id.id)
-    setPass(data[0].creatorUserId == userId)
-    setIsLoading(false)
-  }
+    const { data } = await publicRequest.get('/exam/exam/' + id.id);
+    setPass(data[0].creatorUserId === userId);
+    setIsLoading(false);
+  };
 
   const handleSelect = (i) => {
     if (selected === i && selected === correct) return "select";
@@ -99,30 +123,25 @@ const Question = ({
 
   const handleCheck = (i) => {
     setSelected(i);
-    if (i === correct) { setScore(score + 1); }
+    if (i === correct) {
+      setScore(score + 1);
+    }
     setError(false);
   };
 
   const handleNext = () => {
-    if (currQues >= (questions.length - 1)) {
-      if (pass == true)
-        navigate(`/dashboard`)
-      else {
-        setTimeout(() => { navigate(`/result/${exam_id}`) }, 1000);
-      }
+    if (currQues >= questions.length - 1) {
+      if (pass) navigate(`/dashboard`);
+      else setTimeout(() => { navigate(`/result/${exam_id}`); }, 1000);
     } else if (selected) {
       setCurrQues(currQues + 1);
       setSelected();
     } else setError("Please select an option first");
   };
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(exam_id)
-    console.log(pass)
-    if (pass == true) {
-      console.log("datas did not get saved")
+    if (pass) {
       handleNext();
     } else {
       const userExam = {
@@ -131,17 +150,13 @@ const Question = ({
         grade: score,
       };
       await publicRequest.patch(`/userexams/${exam_id}`, userExam).then((response) => {
-        console.log(response.status);
-        console.log(response.data);
         handleNext();
       });
     }
-  }
+  };
 
   const handleReview = async (i) => {
-    if (pass == true) {
-      console.log("datas did not get saved")
-    } else {
+    if (!pass) {
       const userOptions = {
         examReview: {
           qAnswers: i,
@@ -149,23 +164,19 @@ const Question = ({
           qTitle: questions[currQues].questionTitle,
         }
       };
-      console.log(userOptions)
-      await publicRequest.put("/userexams/" + exam_id, userOptions).then((response) => {
-        console.log(response.status);
-        console.log(response.data);
-      });
+      await publicRequest.put("/userexams/" + exam_id, userOptions).then((response) => {});
     }
-  }
+  };
 
   if (isLoading) {
     return (
       <>
-
         <LoginNavbar />
         <Loader />
       </>
-    )
+    );
   }
+
   return (
     <Container>
       <h1>Question {currQues + 1} :</h1>
@@ -173,15 +184,16 @@ const Question = ({
         <h2>{questions[currQues].questionTitle}</h2>
         <Options>
           {error && <ErrorMessage>{error}</ErrorMessage>}
-          {options &&
-            options.map((option) => (
-              <button className={`singleOption  ${selected && handleSelect(option.option)}`}
-                key={option._id} creator
-                onClick={() => { handleCheck(option.option); handleReview(option.option) }}
-                disabled={selected}>
-                {option.option}
-              </button>
-            ))}
+          {options && options.map((option) => (
+            <SingleOption
+              className={`${selected && handleSelect(option.option)}`}
+              key={option._id}
+              onClick={() => { handleCheck(option.option); handleReview(option.option); }}
+              disabled={selected}
+            >
+              {option.option}
+            </SingleOption>
+          ))}
         </Options>
         <Control>
           <button
@@ -189,12 +201,13 @@ const Question = ({
             color="primary"
             size="large"
             style={{ width: 185 }}
-            onClick={currQues >= (questions.length - 1) ? handleSubmit : handleSubmit}>
-            {currQues >= (questions.length - 1) ? (<span  >Submit</span>) : (<span>Next Question</span>)}
+            onClick={currQues >= questions.length - 1 ? handleSubmit : handleSubmit}
+          >
+            {currQues >= questions.length - 1 ? "Submit" : "Next Question"}
           </button>
         </Control>
       </SingleQuestion>
-    </Container >
+    </Container>
   );
 };
 

@@ -103,15 +103,16 @@ const QuizController = (CUId) => {
     return (
         <div>
             <LoginNavbar />
-            <CountDownTimer hoursMinSecs={hoursMinSecs} url={url} />
             <Quiz
-                questions={questions}
-                score={score}
-                setScore={setScore}
-                setQuestions={setQuestions}
-                userId={userId}
-                exam_id={exam_id}
-            />
+      questions={questions}
+      score={score}
+      setScore={setScore}
+      setQuestions={setQuestions}
+      userId={userId}
+      exam_id={exam_id}
+      hoursMinSecs={hoursMinSecs}
+      url={url}
+    />
             <Footer />
         </div>
     );
